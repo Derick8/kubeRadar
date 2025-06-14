@@ -61,24 +61,6 @@ Each worksheet in the Excel report contains the following columns:
 - **Service Accounts**: Name, Namespace, Secrets, Image Pull Secrets, Created At, Labels
 - **Secrets**: Name, Namespace, Type, Created At
 
-## Project Structure
-
-- `pkg/collector/` - Kubernetes resource collectors
-- `pkg/excel/` - Excel report generation logic
-- `pkg/models/` - Data models
-- `internal/` - Internal utilities
-- `build/` - Build artifacts and generated reports
-
-## Development
-
-- Build the project: `make build`
-- Clean build artifacts: `make clean`
-- Install dependencies: `make deps`
-
-## Notes
-
-- Temporary/lock files like `~$k8s_assessment.xlsx` can be ignored or deleted.
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
