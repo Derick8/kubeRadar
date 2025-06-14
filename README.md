@@ -45,11 +45,11 @@ During execution, the tool prints status messages to the console (stderr) to ind
 
 ## Excel Report Structure
 
-Each worksheet in the Excel report contains the following columns:
+The generated Excel report contains the following worksheets, each with detailed columns:
 
 - **Nodes**: Name, Version, Architecture, OS, Container Runtime, CPU, Memory, Ready, Labels
 - **Namespaces**: Name, Status, Created At, Labels
-- **Pods**: Name, Namespace, Node, Service Account, Host Network, Host PID, Host IPC, Created At
+- **Pods**: Name, Namespace, Node, Service Account, Privileged, Host Network, Host PID, Host IPC, Run As User, Run As Non Root, Auto Mount SA Token, Container Names, Container Images, Capabilities, Resources, Sysctls, Environment Variables, Created At, Labels
 - **Deployments**: Name, Namespace, Replicas, Update Strategy, Created At, Labels
 - **StatefulSets**: Name, Namespace, Replicas, Update Strategy, Created At, Labels
 - **DaemonSets**: Name, Namespace, Update Strategy, Created At, Labels
@@ -58,9 +58,16 @@ Each worksheet in the Excel report contains the following columns:
 - **Ingresses**: Name, Namespace, Rules, TLS, Created At, Labels
 - **RBAC Roles**: Name, Namespace, Created At, Rules
 - **Role Bindings**: Name, Namespace, Role Ref, Subjects, Created At
+- **Cluster Roles**: Name, Created At, Rules
+- **Cluster Role Bindings**: Name, Role Ref, Subjects, Created At
 - **Service Accounts**: Name, Namespace, Secrets, Image Pull Secrets, Created At, Labels
 - **Secrets**: Name, Namespace, Type, Created At
 
+## Logo Symbolism
+
+- **Hexagon**: A nod to the Kubernetes logo, representing a container cluster.
+- **Ship Wheel**: Derived from the original Kubernetes symbol, symbolizing control over distributed systems.
+- **Radar Needle + Dots**: Placed inside the wheel, these elements symbolise scanning or reconnaissance, representing the tool's core functionality: scanning Kubernetes environments.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
