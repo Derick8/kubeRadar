@@ -1,4 +1,6 @@
 # kubeRadar - Kubernetes Reconnaissance Tool
+![image](https://github.com/user-attachments/assets/a4b12b90-713c-45f7-91c4-2625a05ad8b9)
+
 
 kubeRadar is a tool that performs reconnaissance of Kubernetes clusters and generates a comprehensive Excel report. The report provides detailed visibility into cluster configuration, RBAC, workloads, networking, and secrets, helping you inventory and review your cluster setup.
 
