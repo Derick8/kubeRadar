@@ -6,6 +6,14 @@ GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 BINARY_NAME=kubeRadar
+# OS detection for binary extension and mkdir command
+ifeq ($(OS),Windows_NT)
+	BINARY_NAME := kubeRadar.exe
+	MKDIR = if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+else
+	BINARY_NAME := kubeRadar
+	MKDIR = mkdir -p $(BUILD_DIR)
+endif
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 # Build parameters
@@ -17,10 +25,12 @@ MAIN_PATH=main.go
 all: test build
 
 build:
-	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
+	@$(MKDIR)
+	@$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
 
 build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY_UNIX) $(MAIN_PATH)
+	@$(MKDIR)
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY_UNIX) $(MAIN_PATH)
 
 test:
 	$(GOTEST) -v ./...
@@ -36,6 +46,3 @@ deps:
 run:
 	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
 	./$(BUILD_DIR)/$(BINARY_NAME)
-
-# Create the build directory if it doesn't exist
-$(shell mkdir -p $(BUILD_DIR))

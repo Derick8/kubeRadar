@@ -1149,8 +1149,9 @@ func (r *Report) generatePods(workloads models.WorkloadAssessment) error {
 	headers := []string{
 		"Name", "Namespace", "Node", "Service Account",
 		"Privileged", "Host Network", "Host PID", "Host IPC",
-		"Run As User", "Run As Non Root", "Auto Mount SA Token",
-		"Container Names", "Container Images", "Capabilities",
+		"Run As Non Root", "Auto Mount SA Token",
+		"No of Containers", "Container Names", "Container Images", "Capabilities",
+		"RunAsUser", "AllowPrivilegeEscalation", "ReadOnlyRootFilesystem",
 		"Resources", "Sysctls", "Environment Variables",
 		"Created At", "Labels",
 	}
@@ -1168,15 +1169,12 @@ func (r *Report) generatePods(workloads models.WorkloadAssessment) error {
 		capabilities := make([]string, 0)
 		resourceInfo := make([]string, 0)
 		envVars := make([]string, 0)
+		runAsUserList := make([]string, 0)
+		allowPrivilegeEscalationList := make([]string, 0)
+		readOnlyRootFilesystemList := make([]string, 0)
 		hasPrivileged := false
-		runAsUser := int64(0)
 		runAsNonRoot := false
 		automountServiceAccountToken := true // default is true in K8s
-
-		// Get pod-level security context values
-		if pod.SecurityContext.RunAsUser != nil {
-			runAsUser = *pod.SecurityContext.RunAsUser
-		}
 
 		// Collect container-level information
 		for _, container := range pod.Containers {
@@ -1195,6 +1193,19 @@ func (r *Report) generatePods(workloads models.WorkloadAssessment) error {
 			if container.SecurityContext.RunAsNonRoot != nil {
 				runAsNonRoot = *container.SecurityContext.RunAsNonRoot
 			}
+
+			// New fields with default behavior message
+			if container.SecurityContext.RunAsUser != nil {
+				runAsUserList = append(runAsUserList, fmt.Sprintf("%d", *container.SecurityContext.RunAsUser))
+			} else {
+				runAsUserList = append(runAsUserList, "Might use default behavior")
+			}
+			if container.SecurityContext.AllowPrivilegeEscalation != nil {
+				allowPrivilegeEscalationList = append(allowPrivilegeEscalationList, fmt.Sprintf("%v", *container.SecurityContext.AllowPrivilegeEscalation))
+			} else {
+				allowPrivilegeEscalationList = append(allowPrivilegeEscalationList, "Might use default behavior")
+			}
+			readOnlyRootFilesystemList = append(readOnlyRootFilesystemList, fmt.Sprintf("%v", container.SecurityContext.ReadOnlyRoot))
 
 			// Format resource information
 			if container.Resources.Limits.CPU != "" {
@@ -1225,6 +1236,17 @@ func (r *Report) generatePods(workloads models.WorkloadAssessment) error {
 			automountServiceAccountToken = *pod.AutomountServiceAccountToken
 		}
 
+		// If no capabilities are set, show 'Default (not restricted)'
+		capabilitiesStr := ""
+		if len(capabilities) > 0 {
+			capabilitiesStr = strings.Join(capabilities, ", ")
+		} else {
+			capabilitiesStr = "Default (not restricted)"
+		}
+
+		// Number of containers
+		numContainers := len(pod.Containers)
+
 		values := []interface{}{
 			pod.Name,
 			pod.Namespace,
@@ -1234,12 +1256,15 @@ func (r *Report) generatePods(workloads models.WorkloadAssessment) error {
 			pod.SecurityContext.HostNetwork,
 			pod.SecurityContext.HostPID,
 			pod.SecurityContext.HostIPC,
-			runAsUser,
 			runAsNonRoot,
 			automountServiceAccountToken,
-			strings.Join(containerNames, "\n"),
+			numContainers,
+			strings.Join(containerNames, ", "),
 			strings.Join(imageNames, "\n"),
-			strings.Join(capabilities, ", "),
+			capabilitiesStr,
+			strings.Join(runAsUserList, ", "),
+			strings.Join(allowPrivilegeEscalationList, ", "),
+			strings.Join(readOnlyRootFilesystemList, ", "),
 			strings.Join(resourceInfo, "\n"),
 			"N/A", // sysctls - not directly available in the model
 			strings.Join(envVars, "\n"),
